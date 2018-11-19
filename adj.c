@@ -186,7 +186,7 @@ void printArr(int dist[], int n) {
 
 // The main function that calulates distances of shortest paths from src to all
 // vertices. It is a O(ELogV) function
-double dijkstra(struct Graph* graph, int src, int dest, double** distMatrix) {
+double dijkstra(struct Graph* graph, int src, int dest, double* distMatrix) {
   int V = graph->V;  // Get the number of vertices in graph
   // double dist[V];       // dist values used to pick minimum weight edge in
   // cut
@@ -196,16 +196,16 @@ double dijkstra(struct Graph* graph, int src, int dest, double** distMatrix) {
 
   // Initialize min heap with all vertices. dist value of all vertices
   for (int v = 0; v < V; ++v) {
-    distMatrix[src][v] = INT_MAX;
-    minHeap->array[v] = newMinHeapNode(v, distMatrix[src][v]);
+    distMatrix[v] = INT_MAX;
+    minHeap->array[v] = newMinHeapNode(v, distMatrix[v]);
     minHeap->pos[v] = v;
   }
 
   // Make dist value of src vertex as 0 so that it is extracted first
-  minHeap->array[src] = newMinHeapNode(src, distMatrix[src][src]);
+  minHeap->array[src] = newMinHeapNode(src, distMatrix[src]);
   minHeap->pos[src] = src;
-  distMatrix[src][src] = 0;
-  decreaseKey(minHeap, src, distMatrix[src][src]);
+  distMatrix[src] = 0;
+  decreaseKey(minHeap, src, distMatrix[src]);
 
   // Initially size of min heap is equal to V
   minHeap->size = V;
@@ -216,6 +216,7 @@ double dijkstra(struct Graph* graph, int src, int dest, double** distMatrix) {
     // Extract the vertex with minimum distance value
     MinHeapNode* minHeapNode = extractMin(minHeap);
     int u = minHeapNode->v;  // Store the extracted vertex number
+    free(minHeapNode);
 
     // Traverse through all adjacent vertices of u (the extracted
     // vertex) and update their distance values
@@ -225,19 +226,19 @@ double dijkstra(struct Graph* graph, int src, int dest, double** distMatrix) {
 
       // If shortest distance to v is not finalized yet, and distance to v
       // through u is less than its previously calculated distance
-      if (isInMinHeap(minHeap, v) && distMatrix[src][u] != INT_MAX &&
-          pCrawl->weight + distMatrix[src][u] < distMatrix[src][v]) {
-        distMatrix[src][v] = distMatrix[src][u] + pCrawl->weight;
+      if (isInMinHeap(minHeap, v) && distMatrix[u] != INT_MAX &&
+          pCrawl->weight + distMatrix[u] < distMatrix[v]) {
+        distMatrix[v] = distMatrix[u] + pCrawl->weight;
 
         // update distance value in min heap also
-        decreaseKey(minHeap, v, distMatrix[src][v]);
+        decreaseKey(minHeap, v, distMatrix[v]);
       }
       pCrawl = pCrawl->next;
     }
   }
 
   // print the calculated shortest distances
-  return distMatrix[src][dest];
+  return distMatrix[dest];
 }
 
 Graph* createGraph(int V, int E) {
@@ -256,6 +257,20 @@ Graph* createGraph(int V, int E) {
   }
 
   return graph;
+}
+
+void destroyGraph(Graph* graph) {
+  // Initialize each adjacency list as empty by making head as NULL
+  for (int i = 0; i < graph->V; ++i) {
+    while (graph->array[i].head != NULL) {
+      AdjListNode* temp = graph->array[i].head;
+      graph->array[i].head = temp->next;
+      free(temp);
+    }
+  }
+
+  free(graph->array);
+  free(graph);
 }
 
 typedef struct Node {
@@ -306,7 +321,7 @@ Graph* read_graph(char* filename, int* numVertex, int* numEdge) {
   return g;
 }
 
-void read_query(char* filename, Graph* graph, double** distMatrix) {
+void read_query(char* filename, Graph* graph, double* distMatrix) {
   FILE* fptr;
 
   fptr = fopen(filename, "r");
@@ -326,8 +341,8 @@ void read_query(char* filename, Graph* graph, double** distMatrix) {
   double dist = 0;
   for (i = 0; i < cases; i++) {
     fscanf(fptr, "%u %u", &source, &dest);
-    if (distMatrix[source][dest] != DBL_MAX) {
-      printf("%.0f\n", distMatrix[source][dest]);
+    if (distMatrix[dest] != DBL_MAX) {
+      printf("%.0f\n", distMatrix[dest]);
     } else {
       dist = dijkstra(graph, source, dest, distMatrix);
       printf("%.0f\n", dist);
@@ -348,16 +363,16 @@ int main(int Argc, char** Argv) {
   int numVertex, numEdge;
   Graph* g = read_graph(Argv[1], &numVertex, &numEdge);
 
-  double** distMatrix = (double**)malloc(sizeof(double*) * numVertex);
+  double* distMatrix = (double*)malloc(sizeof(double) * numVertex);
   int i = 0, j = 0;
 
   for (i = 0; i < numVertex; i++) {
-    distMatrix[i] = (double*)malloc(sizeof(double) * numVertex);
-    for (j = 0; j < numVertex; j++) distMatrix[i][j] = DBL_MAX;
-    distMatrix[i][i] = 0.0;
+    distMatrix[i] = DBL_MAX;
   }
 
   read_query(Argv[2], g, distMatrix);
+  destroyGraph(g);
+  free(distMatrix);
 
   return 0;
 }
