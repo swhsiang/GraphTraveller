@@ -186,25 +186,25 @@ void printArr(int dist[], int n) {
 
 // The main function that calulates distances of shortest paths from src to all
 // vertices. It is a O(ELogV) function
-double dijkstra(struct Graph* graph, int src, int dest) {
+double dijkstra(struct Graph* graph, int src, int dest, double **distMatrix) {
   int V = graph->V;  // Get the number of vertices in graph
-  double dist[V];       // dist values used to pick minimum weight edge in cut
+  //double dist[V];       // dist values used to pick minimum weight edge in cut
 
   // minHeap represents set E
   MinHeap* minHeap = createMinHeap(V);
 
   // Initialize min heap with all vertices. dist value of all vertices
   for (int v = 0; v < V; ++v) {
-    dist[v] = INT_MAX;
-    minHeap->array[v] = newMinHeapNode(v, dist[v]);
+    distMatrix[src][v] = INT_MAX;
+    minHeap->array[v] = newMinHeapNode(v, distMatrix[src][v]);
     minHeap->pos[v] = v;
   }
 
   // Make dist value of src vertex as 0 so that it is extracted first
-  minHeap->array[src] = newMinHeapNode(src, dist[src]);
+  minHeap->array[src] = newMinHeapNode(src, distMatrix[src][src]);
   minHeap->pos[src] = src;
-  dist[src] = 0;
-  decreaseKey(minHeap, src, dist[src]);
+  distMatrix[src][src] = 0;
+  decreaseKey(minHeap, src, distMatrix[src][src]);
 
   // Initially size of min heap is equal to V
   minHeap->size = V;
@@ -224,20 +224,19 @@ double dijkstra(struct Graph* graph, int src, int dest) {
 
       // If shortest distance to v is not finalized yet, and distance to v
       // through u is less than its previously calculated distance
-      if (isInMinHeap(minHeap, v) && dist[u] != INT_MAX &&
-          pCrawl->weight + dist[u] < dist[v]) {
-        dist[v] = dist[u] + pCrawl->weight;
+      if (isInMinHeap(minHeap, v) && distMatrix[src][u] != INT_MAX &&
+          pCrawl->weight + distMatrix[src][u] < distMatrix[src][v]) {
+        distMatrix[src][v] = distMatrix[src][u] + pCrawl->weight;
 
         // update distance value in min heap also
-        decreaseKey(minHeap, v, dist[v]);
+        decreaseKey(minHeap, v, distMatrix[src][v]);
       }
       pCrawl = pCrawl->next;
     }
   }
 
   // print the calculated shortest distances
-  // printArr(dist, V);
-  return dist[dest];
+  return distMatrix[src][dest];
 }
 
 Graph* createGraph(int V, int E) {
@@ -327,9 +326,13 @@ void read_query(char* filename, Graph* graph, double** distMatrix) {
   double dist = 0;
   for (i = 0; i < cases; i++) {
     fscanf(fptr, "%u %u", &source, &dest);
+    if (distMatrix[source][dest] != DBL_MAX) {
+        printf("%.0f\n", distMatrix[source][dest]);
+    } else {
+        dist = dijkstra(graph, source, dest, distMatrix);
+        printf("%.0f\n", dist);
+    }
 
-     dist = dijkstra(graph, source, dest);
-     printf("%.0f\n", dist);
      // FIXME print the path
   }
 
