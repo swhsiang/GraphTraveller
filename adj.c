@@ -38,6 +38,15 @@ AdjListNode* newAdjListNode(int dest, int weight) {
   return newNode;
 }
 
+void destroyAdjList(AdjListNode* root) {
+  AdjListNode *next = NULL, *current = root;
+  while (current != NULL) {
+    next = current->next;
+    free(current);
+    current = next;
+  }
+}
+
 // Adds an edge to an undirected graph
 void addEdge(Graph* graph, int src, int dest, int weight) {
   // Add an edge from src to dest.  A new node is added to the adjacency
@@ -82,6 +91,16 @@ MinHeap* createMinHeap(int capacity) {
   minHeap->capacity = capacity;
   minHeap->array = (MinHeapNode**)malloc(capacity * sizeof(MinHeapNode*));
   return minHeap;
+}
+
+void destroyMinHeap(MinHeap* heap) {
+  int i = 0;
+  for (i = 0; i < heap->size; i++) {
+    free(heap->array[i]);
+  }
+  free(heap->array);
+  free(heap->pos);
+  free(heap);
 }
 
 // A utility function to swap two nodes of min heap. Needed for min heapify
@@ -236,6 +255,8 @@ double dijkstra(struct Graph* graph, int src, int dest, double* distMatrix) {
       pCrawl = pCrawl->next;
     }
   }
+
+  destroyMinHeap(minHeap);
 
   // print the calculated shortest distances
   return distMatrix[dest];
