@@ -4,7 +4,7 @@ map_file_5x5 = test/map5x5.txt
 query_file_5x5 = test/query5x5.txt
 
 compile:
-	$(CC) -Wall -Werror -O3 $(files) -o $(project)
+	$(CC) -Wall -Werror -O3 $(files) -o $(project) -lm
 
 debug-compile: $(files)
 	$(CC) -g $(files) -o $(project) 
