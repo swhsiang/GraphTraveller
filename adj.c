@@ -186,9 +186,10 @@ void printArr(int dist[], int n) {
 
 // The main function that calulates distances of shortest paths from src to all
 // vertices. It is a O(ELogV) function
-double dijkstra(struct Graph* graph, int src, int dest, double **distMatrix) {
+double dijkstra(struct Graph* graph, int src, int dest, double** distMatrix) {
   int V = graph->V;  // Get the number of vertices in graph
-  //double dist[V];       // dist values used to pick minimum weight edge in cut
+  // double dist[V];       // dist values used to pick minimum weight edge in
+  // cut
 
   // minHeap represents set E
   MinHeap* minHeap = createMinHeap(V);
@@ -261,7 +262,6 @@ typedef struct Node {
   int x, y;
 } Node;
 
-
 Graph* read_graph(char* filename, int* numVertex, int* numEdge) {
   FILE* fptr;
 
@@ -327,13 +327,13 @@ void read_query(char* filename, Graph* graph, double** distMatrix) {
   for (i = 0; i < cases; i++) {
     fscanf(fptr, "%u %u", &source, &dest);
     if (distMatrix[source][dest] != DBL_MAX) {
-        printf("%.0f\n", distMatrix[source][dest]);
+      printf("%.0f\n", distMatrix[source][dest]);
     } else {
-        dist = dijkstra(graph, source, dest, distMatrix);
-        printf("%.0f\n", dist);
+      dist = dijkstra(graph, source, dest, distMatrix);
+      printf("%.0f\n", dist);
     }
 
-     // FIXME print the path
+    // FIXME print the path
   }
 
   fclose(fptr);
