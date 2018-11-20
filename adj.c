@@ -413,13 +413,15 @@ int main(int Argc, char** Argv) {
   int numVertex, numEdge;
   Graph* g = read_graph(Argv[1], &numVertex, &numEdge);
 
-  int i = 0;
+  //int i = 0;
   DistNode* distArr = (DistNode*)malloc(sizeof(DistNode) * numVertex);
+  /*
   for (i = 0; i < numVertex; i++) {
     distArr[i].dist = INT_MAX;
     distArr[i].from = 0;
     distArr[i].steps = 0;
   }
+  */
 
   read_query(Argv[2], g, distArr);
   free(distArr);
