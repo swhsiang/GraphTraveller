@@ -16,6 +16,9 @@ doc_path = $(pwd)/doc
 compile: $(files)
 	$(CC) -Wall -Werror -O3 $(files) -o $(project) -lm
 
+compile-test: $(files)
+	$(CC) -O0 $(files) -o $(project) -g -pg -lm
+
 linux-compare: $(project) $(sample)
 	@echo "Linux Only"
 	@echo "time sample program"
