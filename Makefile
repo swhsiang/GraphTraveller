@@ -19,9 +19,9 @@ compile: $(files)
 linux-compare: $(project) $(sample)
 	@echo "Linux Only"
 	@echo "time sample program"
-	time ./$(sample) $(usa_data_set) $(usa_query_100)  | grep CPU
-	@echo "time the implementation"
-	time ./$(project) $(usa_data_set) $(usa_query_100) | grep CPU
+	time test/shortestpath test/usa.txt test/usa100.txt
+	@echo "time my implementation"
+	time $(pwd)/proj3 test/usa.txt test/usa100.txt
 
 memory: $(project)
 	@echo "measure the memory usage of the implementation"
@@ -31,9 +31,9 @@ memory: $(project)
 memory-compare: $(project) $(sample)
 	@echo "Linux Only"
 	@echo "measure the memory usage of sample program"
-	mprof run --output memory_profile_$(sample_file).dat ./$(sample) $(usa_data_set) $(usa_query_100)
+	mprof run --interval 0.05 --output memory_profile_$(sample_file).dat ./$(sample) $(usa_data_set) $(usa_query_100)
 	@echo "measure the memory usage of the implementation"
-	mprof run --output memory_profile_$(project).dat ./$(project) $(usa_data_set) $(usa_query_100)
+	mprof run --interval 0.05 --output memory_profile_$(project).dat ./$(project) $(usa_data_set) $(usa_query_100)
 
 debug-compile: $(files)
 	$(CC) -g $(files) -o $(project) 
