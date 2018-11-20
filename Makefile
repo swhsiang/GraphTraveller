@@ -3,7 +3,7 @@ project = proj3
 map_file_5x5 = test/map5x5.txt
 query_file_5x5 = test/query5x5.txt
 
-compile: $(project)
+compile:
 	$(CC) -Wall -Werror -O3 $(files) -o $(project)
 
 debug-compile: $(files)
