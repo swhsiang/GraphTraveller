@@ -9,18 +9,31 @@ usa_query_10 = test/usa10.txt
 usa_query_100 = test/usa100.txt
 
 large_data_set = test/roadCA.txt
-sample = test/shortestpath
+sample_file = shortestpath
+sample = test/$(sample_file)
+doc_path = $(pwd)/doc
 
 compile: $(files)
 	$(CC) -Wall -Werror -O3 $(files) -o $(project) -lm
 
-compare: $(project) $(sample)
+linux-compare: $(project) $(sample)
 	@echo "Linux Only"
 	@echo "time sample program"
-	time ./$(sample) $(usa_data_set) $(usa_query_100)
+	time ./$(sample) $(usa_data_set) $(usa_query_100)  | grep CPU
 	@echo "time the implementation"
-	time ./$(project) $(usa_data_set) $(usa_query_100)
+	time ./$(project) $(usa_data_set) $(usa_query_100) | grep CPU
 
+memory: $(project)
+	@echo "measure the memory usage of the implementation"
+	mprof run --output memory_profile_$(project).dat ./$(project) $(usa_data_set) $(usa_query_100)
+
+
+memory-compare: $(project) $(sample)
+	@echo "Linux Only"
+	@echo "measure the memory usage of sample program"
+	mprof run --output memory_profile_$(sample_file).dat ./$(sample) $(usa_data_set) $(usa_query_100)
+	@echo "measure the memory usage of the implementation"
+	mprof run --output memory_profile_$(project).dat ./$(project) $(usa_data_set) $(usa_query_100)
 
 debug-compile: $(files)
 	$(CC) -g $(files) -o $(project) 
