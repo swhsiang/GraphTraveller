@@ -1,0 +1,28 @@
+==19643== Process terminating with default action of signal 27 (SIGPROF)
+==19643==    at 0x300EADB58E: __open_nocancel (in /lib64/libc-2.12.so)
+==19643==    by 0x300EAEB3D0: write_gmon (in /lib64/libc-2.12.so)
+==19643==    by 0x300EAEB8E9: _mcleanup (in /lib64/libc-2.12.so)
+==19643==    by 0x300EA35991: exit (in /lib64/libc-2.12.so)
+==19643==    by 0x300EA1ED23: (below main) (in /lib64/libc-2.12.so)
+==19643==
+==19643== HEAP SUMMARY:
+==19643==     in use at exit: 9,868 bytes in 101 blocks
+==19643==   total heap usage: 9,001,928 allocs, 9,001,827 frees, 181,535,060 bytes allocated
+==19643==
+==19643== Searching for pointers to 101 not-freed blocks
+==19643== Checked 78,784 bytes
+==19643==
+==19643== LEAK SUMMARY:
+==19643==    definitely lost: 800 bytes in 100 blocks
+==19643==    indirectly lost: 0 bytes in 0 blocks
+==19643==      possibly lost: 0 bytes in 0 blocks
+==19643==    still reachable: 9,068 bytes in 1 blocks
+==19643==         suppressed: 0 bytes in 0 blocks
+==19643== Rerun with --leak-check=full to see details of leaked memory
+==19643==
+==19643== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 8 from 6)
+--19643--
+--19643-- used_suppression:      4 U1004-ARM-_dl_relocate_object
+--19643-- used_suppression:      4 glibc-2.5.x-on-SUSE-10.2-(PPC)-2a
+==19643==
+==19643== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 8 from 6)
