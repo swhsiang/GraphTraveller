@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
+#include <unistd.h>
 
 #define DEFAULT_ARR_SIZE 20
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -216,7 +217,8 @@ int dijkstra(struct Graph* graph, int src, int dest, DistNode* distArr) {
   MinHeap* minHeap = createMinHeap(V);
 
   // Initialize min heap with all vertices. dist value of all vertices
-  for (int v = 0; v < V; ++v) {
+  int v = 0;
+  for (v = 0; v < V; ++v) {
     distArr[v].dist = INT_MAX;
     distArr[v].from = src;
     distArr[v].steps = INT_MAX;
@@ -277,7 +279,8 @@ Graph* createGraph(int V, int E) {
   graph->E = E;
   graph->array = (AdjList*)malloc(V * sizeof(AdjList));
 
-  for (int i = 0; i < V; ++i) {
+  int i;
+  for (i = 0; i < V; ++i) {
     graph->array[i].head = NULL;
   }
 
@@ -285,7 +288,8 @@ Graph* createGraph(int V, int E) {
 }
 
 void destroyGraph(Graph* graph) {
-  for (int i = 0; i < graph->V; ++i) {
+  int i;
+  for (i = 0; i < graph->V; ++i) {
     AdjListNode* temp = NULL;
     while (graph->array[i].head != NULL) {
       temp = graph->array[i].head;
@@ -294,7 +298,7 @@ void destroyGraph(Graph* graph) {
     }
   }
 
-  //destroyAdjList(graph->array->head);
+  // destroyAdjList(graph->array->head);
   free(graph->array);
   free(graph);
 }
@@ -353,7 +357,6 @@ void read_query(char* filename, Graph* graph, DistNode* distArr) {
 
   // Step 1: Initialize distances from src to all other vertices
   // as INFINITE
-
   int cases = 0;
 
   fscanf(fptr, "%d", &cases);
