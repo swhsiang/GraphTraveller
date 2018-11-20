@@ -28,15 +28,15 @@ linux-compare: $(project) $(sample)
 
 memory: $(project)
 	@echo "measure the memory usage of the implementation"
-	mprof run --output memory_profile_$(project).dat ./$(project) $(usa_data_set) $(usa_query_100)
+	mprof run --interval 0.01 --output memory_profile_$(project).dat ./$(project) $(usa_data_set) $(usa_query_100)
 
 
 memory-compare: $(project) $(sample)
 	@echo "Linux Only"
 	@echo "measure the memory usage of sample program"
-	mprof run --interval 0.05 --output memory_profile_$(sample_file).dat ./$(sample) $(usa_data_set) $(usa_query_100) > /dev/null
+	mprof run --interval 0.01 --output memory_profile_$(sample_file).dat ./$(sample) $(usa_data_set) $(usa_query_100) > /dev/null
 	@echo "measure the memory usage of the implementation"
-	mprof run --interval 0.05 --output memory_profile_$(project).dat ./$(project) $(usa_data_set) $(usa_query_100) > /dev/null
+	mprof run --interval 0.01 --output memory_profile_$(project).dat ./$(project) $(usa_data_set) $(usa_query_100) > /dev/null
 
 debug-compile: $(files)
 	$(CC) -g $(files) -o $(project) 
