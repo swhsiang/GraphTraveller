@@ -98,6 +98,18 @@ MinHeap* createMinHeap(int capacity) {
   return minHeap;
 }
 
+void cleanMinHeap(MinHeap* heap) {
+  int i = 0;
+  for (i = 0; i < heap->size; i++) {
+    free(heap->array[i]);
+  }
+
+  for (i = 0; i < heap->capacity; i++) {
+    heap->pos[i] = 0;
+  }
+  heap->size = 0;
+}
+
 void destroyMinHeap(MinHeap* heap) {
   int i = 0;
   for (i = 0; i < heap->size; i++) {
@@ -204,11 +216,11 @@ bool isInMinHeap(MinHeap* minHeap, int v) {
 
 // The main function that calulates distances of shortest paths from src to all
 // vertices. It is a O(ELogV) function
-int dijkstra(struct Graph* graph, int src, int dest, DistNode* distArr) {
+int dijkstra(struct Graph* graph, int src, int dest, DistNode* distArr,
+             MinHeap* minHeap) {
   int V = graph->V;  // Get the number of vertices in graph
 
   // minHeap represents set E
-  MinHeap* minHeap = createMinHeap(V);
 
   // Initialize min heap with all vertices. dist value of all vertices
   int v = 0;
@@ -260,8 +272,6 @@ int dijkstra(struct Graph* graph, int src, int dest, DistNode* distArr) {
     }
   }
 
-  destroyMinHeap(minHeap);
-
   // print the calculated shortest distances
   return distArr[dest].dist;
 }
@@ -283,8 +293,8 @@ Graph* createGraph(int V, int E) {
 
 void destroyGraph(Graph* graph) {
   int i;
+  AdjListNode* temp = NULL;
   for (i = 0; i < graph->V; ++i) {
-    AdjListNode* temp = NULL;
     while (graph->array[i].head != NULL) {
       temp = graph->array[i].head;
       graph->array[i].head = temp->next;
@@ -359,10 +369,12 @@ void read_query(char* filename, Graph* graph, DistNode* distArr) {
 
   int *tempPtr = NULL, *tempArr = (int*)malloc(sizeof(int) * DEFAULT_ARR_SIZE);
 
+  MinHeap* minHeap = createMinHeap(graph->V);
+
   for (i = 0; i < cases; i++) {
     fscanf(fptr, "%u %u", &source, &dest);
 
-    printf("%d\n", dijkstra(graph, source, dest, distArr));
+    printf("%d\n", dijkstra(graph, source, dest, distArr, minHeap));
     assert(distArr[dest].steps != INT_MAX);
     assert(distArr[dest].steps > 0);
     if (distArr[dest].steps > (sizeof(tempArr) / sizeof(int))) {
@@ -383,6 +395,8 @@ void read_query(char* filename, Graph* graph, DistNode* distArr) {
     }
     printf("\n");
   }
+
+  destroyMinHeap(minHeap);
 
   free(tempArr);
   free(tempPtr);
