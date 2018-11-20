@@ -1,16 +1,10 @@
 #include <assert.h>
-#include <float.h>
 #include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/resource.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <time.h>
-#include <unistd.h>
 
 #define DEFAULT_ARR_SIZE 20
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
