@@ -54,13 +54,12 @@ typedef struct DistNode {
 
 // Adds an edge to an undirected graph
 void addEdge(Graph* graph, int src, int dest, int weight) {
-  // Add an edge from src to dest.  A new node is added to the adjacency
-  // list of src.  The node is added at the begining
+  // source to dest
   AdjListNode* newNode = newAdjListNode(dest, weight);
   newNode->next = graph->array[src].head;
   graph->array[src].head = newNode;
 
-  // Since graph is undirected, add an edge from dest to src also
+  // undirected map, dest to source
   newNode = newAdjListNode(src, weight);
   newNode->next = graph->array[dest].head;
   graph->array[dest].head = newNode;
@@ -311,7 +310,8 @@ typedef struct Node {
   int x, y;
 } Node;
 
-Graph* read_graph(char* filename, int* numVertex, int* numEdge) {
+Graph* read_graph(char* filename, int* numVertex, int* numEdge, int* maxIndex,
+                  int* availability[]) {
   FILE* fptr;
 
   fptr = fopen(filename, "r");
@@ -323,13 +323,43 @@ Graph* read_graph(char* filename, int* numVertex, int* numEdge) {
   fscanf(fptr, "%d %d", numVertex, numEdge);
   Graph* g = createGraph(*numVertex, *numEdge);
 
-  Node* nodes = (Node*)malloc((*numVertex) * sizeof(Node));
+  *maxIndex = *numVertex;
+
   int i = 0;
-  int j, x, y;
+  Node* nodes = (Node*)malloc((*numVertex) * sizeof(Node));
+  *availability = (int*)malloc((*numVertex) * sizeof(int));
+  for (i = 0; i < *numVertex; i++) {
+    (*availability)[i] = 0;
+  }
+
+  int* tempInt = NULL;
+  Node* tempNodes = NULL;
+  int j, x, y, k = 0, preMax = *maxIndex;
   for (i = 0; i < *numVertex; i++) {
     fscanf(fptr, "%d %d %d", &j, &x, &y);
+    // FIXME should have better check mechanism
+    // Ex: if maxIndex' > maxIndex
+    if (*maxIndex < j + 1) {
+      preMax = *maxIndex;
+      *maxIndex = j + 1;
+      // resize the array of nodes
+      tempNodes = realloc(nodes, (*maxIndex) * sizeof(Node));
+      // FIXME should init the array for extra space
+      assert(tempNodes == NULL);
+      nodes = tempNodes;
+      tempNodes = NULL;
+
+      tempInt = (int*)realloc((*availability), sizeof(int) * (*maxIndex));
+      assert(tempInt == NULL);
+      (*availability) = tempInt;
+      tempInt = NULL;
+      for (k = preMax; k < *maxIndex; k++) {
+        (*availability)[k] = 0;
+      }
+    }
     nodes[j].x = x;
     nodes[j].y = y;
+    (*availability)[j] = 1;
   }
 
   int src, dest;
@@ -350,7 +380,8 @@ Graph* read_graph(char* filename, int* numVertex, int* numEdge) {
   return g;
 }
 
-void read_query(char* filename, Graph* graph, DistNode* distArr) {
+void read_query(char* filename, Graph* graph, DistNode* distArr, int maxIndex,
+                int* availability[]) {
   FILE* fptr;
 
   fptr = fopen(filename, "r");
@@ -359,8 +390,6 @@ void read_query(char* filename, Graph* graph, DistNode* distArr) {
     exit(1);
   }
 
-  // Step 1: Initialize distances from src to all other vertices
-  // as INFINITE
   int cases = 0;
 
   fscanf(fptr, "%d", &cases);
@@ -372,13 +401,23 @@ void read_query(char* filename, Graph* graph, DistNode* distArr) {
   MinHeap* minHeap = createMinHeap(graph->V);
 
   for (i = 0; i < cases; i++) {
-    fscanf(fptr, "%u %u", &source, &dest);
+    fscanf(fptr, "%d %d", &source, &dest);
+
+    // check if nodes exist in the map
+    if ( source >= maxIndex || dest >= maxIndex ) {
+      printf("INF\n");
+      printf("%d %d\n", source, dest);
+      continue;
+    } else if ((*availability)[source] != 1 || (*availability)[dest] != 1) {
+      printf("INF\n");
+      printf("%d %d\n", source, dest);
+      continue;
+    }
 
     printf("%d\n", dijkstra(graph, source, dest, distArr, minHeap));
     assert(distArr[dest].steps != INT_MAX);
     assert(distArr[dest].steps > 0);
     if (distArr[dest].steps > (sizeof(tempArr) / sizeof(int))) {
-      // resize
       tempPtr = realloc(tempArr, sizeof(int) * distArr[dest].steps);
       assert(tempPtr != NULL);
       tempArr = tempPtr;
@@ -410,10 +449,10 @@ int main(int Argc, char** Argv) {
     fprintf(stderr, "Must pass two arguments!\n");
     exit(1);
   }
-  int numVertex, numEdge;
-  Graph* g = read_graph(Argv[1], &numVertex, &numEdge);
+  int numVertex, numEdge, maxIndex = 0;
+  int* availability = NULL;
+  Graph* g = read_graph(Argv[1], &numVertex, &numEdge, &maxIndex, &availability);
 
-  //int i = 0;
   DistNode* distArr = (DistNode*)malloc(sizeof(DistNode) * numVertex);
   /*
   for (i = 0; i < numVertex; i++) {
@@ -423,9 +462,10 @@ int main(int Argc, char** Argv) {
   }
   */
 
-  read_query(Argv[2], g, distArr);
+  read_query(Argv[2], g, distArr, maxIndex, &availability);
   free(distArr);
   destroyGraph(g);
+  free(availability);
 
   return 0;
 }
