@@ -1,5 +1,5 @@
 files = adj.c
-project = proj3
+project = adjacent
 
 map_file_5x5 = test/map5x5.txt
 query_file_5x5 = test/query5x5.txt
